@@ -43,7 +43,7 @@ class BellSchedule:
     def get_period(self, period_name: str) -> Period:
         return self.periods[period_name]
 
-    def as_list(self, serializable=False) -> list:
+    def periods_as_list(self, serializable=False) -> list:
         if serializable:
             return [
                 {
@@ -82,7 +82,7 @@ class BellSchedule:
             fieldnames = ["name", "start_time", "end_time"]
             bellwriter = csv.DictWriter(outfile, fieldnames=fieldnames)
             bellwriter.writeheader()
-            for row in self.as_list():
+            for row in self.periods_as_list():
                 bellwriter.writerow(row)
 
     def current_period(self, current_time=dt.datetime.now()):
@@ -97,17 +97,15 @@ class BellSchedule:
             "name": self.name,
             "schedule_date": str(self.schedule_date),
             "tz": self.tz,
-            "periods": self.as_list(serializable=True),
+            "periods": self.periods_as_list(serializable=True),
         }
         return schedule_dict
 
-    def to_json(self):
-        return json.dumps(self.as_dict(), indent=2)
+    def to_json(self, indent=False):
+        return json.dumps(self.as_dict())
 
     @classmethod
-    def from_json(cls, filename: str):
-        with open(filename, "r") as infile:
-            sched_json = json.load(infile)
+    def from_json(cls, sched_json: json):
         new_bs = BellSchedule(
             sched_json["name"],
             tz=sched_json["tz"],
@@ -116,4 +114,10 @@ class BellSchedule:
         for period in sched_json['periods']:
             new_bs.add_period(period=Period(period.get('name'), period.get('start_time'), period.get('end_time')))
         return new_bs
+    
+    @classmethod
+    def read_json(cls, filename: str) -> json:
+        with open(filename, "r") as infile:
+            sched_json = json.load(infile)
+        return BellSchedule.from_json(sched_json=sched_json)
 

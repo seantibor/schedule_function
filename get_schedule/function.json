@@ -12,6 +12,13 @@
       ]
     },
     {
+      "name": "inputblob",
+      "type": "blob",
+      "path": "schedules/all_schedules.json",
+      "connection": "ScheduleStorageConnectionString",
+      "direction": "in"
+    },
+    {
       "type": "http",
       "direction": "out",
       "name": "$return"
