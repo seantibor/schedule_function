@@ -1,0 +1,19 @@
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "name": "mytimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 */12 * * *",
+      "runOnStartup": true
+    },
+    {
+      "name": "outputblob",
+      "type": "blob",
+      "path": "%PCCalendarStorageBlobPath%",
+      "connection": "ScheduleStorageConnectionString",
+      "direction": "out"
+    }
+  ]
+}
