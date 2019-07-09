@@ -23,8 +23,8 @@ def main(req: func.HttpRequest, inputblob: func.InputStream,
 
     schedules = get_schedules(inputblob)
 
-    schedules[schedule.schedule_date] = schedule
-    output_json = json.dumps({key: value.as_dict() for key, value in schedules.items()}, indent=2)
+    schedules[schedule.schedule_date.strftime('%Y-%m-%d')] = schedule
+    output_json = json.dumps({key: value.as_dict() for key, value in schedules.items()})
     
     outputblob.set(output_json)
         

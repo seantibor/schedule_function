@@ -5,8 +5,9 @@
       "name": "mytimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "0 0 */12 * * *",
-      "runOnStartup": true
+      "schedule": "0 0 0,12 * * *",
+      "runOnStartup": false,
+      "useMonitor": true
     },
     {
       "name": "outputblob",

@@ -7,21 +7,20 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "get",
         "post"
       ]
     },
     {
       "name": "inputblob",
       "type": "blob",
-      "path": "schedules/all_schedules.json",
+      "path": "%ScheduleStorageBlobPath%",
       "connection": "ScheduleStorageConnectionString",
       "direction": "in"
     },
     {
       "name": "outputblob",
       "type": "blob",
-      "path": "schedules/all_schedules.json",
+      "path": "%ScheduleStorageBlobPath%",
       "connection": "ScheduleStorageConnectionString",
       "direction": "out"
     },
