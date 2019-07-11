@@ -6,16 +6,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
+      "route": "schedule/{date?}",
       "methods": [
         "get"
       ]
-    },
-    {
-      "name": "inputblob",
-      "type": "blob",
-      "path": "%ScheduleStorageBlobPath%",
-      "connection": "ScheduleStorageConnectionString",
-      "direction": "in"
     },
     {
       "type": "http",
