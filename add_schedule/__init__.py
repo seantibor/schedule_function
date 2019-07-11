@@ -3,7 +3,7 @@ import bell_schedule as bell
 import datetime as dt
 import json
 import requests
-from blob_storage import get_schedules
+from schedule_helper_functions import get_schedules
 
 import azure.functions as func
 

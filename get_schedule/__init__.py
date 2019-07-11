@@ -2,7 +2,7 @@ import logging
 import bell_schedule as bell
 import datetime as dt
 import json
-from blob_storage import get_schedules, get_schedule
+from schedule_helper_functions import get_schedules, get_schedule
 from dateutil import tz
 
 import azure.functions as func

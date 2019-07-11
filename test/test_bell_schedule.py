@@ -3,10 +3,10 @@ import datetime as dt
 import pytest, arrow
 import os
 from freezegun import freeze_time
-from dateutil import tz
+import pytz
 
 timezone = pytz.timezone("US/Eastern")
-test_date = dt.datetime(2019, 5, 15, 8, 25, tzinfo=timezone)
+test_date = timezone.localize(dt.datetime(2019, 5, 15, 8, 25))
 
 @pytest.fixture(scope="module")
 def pc_bellschedule():
@@ -19,8 +19,8 @@ def test_create_schedule():
     pass
 
 def test_create_period():
-    start_time = dt.datetime(2019, 5, 12, 8, 20, tzinfo=timezone)
-    end_time = dt.datetime(2019, 5, 12, 9, 2, tzinfo=timezone)
+    start_time = timezone.localize(dt.datetime(2019, 5, 12, 8, 20))
+    end_time = timezone.localize(dt.datetime(2019, 5, 12, 9, 2))
     period = Period(name="1", start_time=start_time, end_time=end_time)
     assert period.name == "1"
     assert period.start_time == start_time
@@ -49,11 +49,12 @@ def test_schedule_to_json(pc_bellschedule):
     with open(json_file, 'w') as outfile:
         outfile.write(output_json)
     assert '2019-05-15T08:21:00-04:00' in output_json
+    assert 'schedule_date' in output_json
 
 @freeze_time(test_date)
 def test_csv_to_schedule():
     # Setup
-    test_date = dt.datetime(2019, 7, 7, tzinfo=timezone)
+    test_date = timezone.localize(dt.datetime(2019, 7, 7))
     csv_file = "test/test_input.csv"
     pc_bellschedule = BellSchedule.from_csv(
         csv_file, schedule_date=test_date, timezone=timezone
@@ -73,7 +74,7 @@ def test_current_period(pc_bellschedule):
     assert period.name == "1"
 
 def test_no_current_period(pc_bellschedule):
-    test_time = dt.datetime(2019, 5, 14, 18, 25, tzinfo=timezone)
+    test_time = timezone.localize(dt.datetime(2019, 5, 14, 18, 25))
     period = pc_bellschedule.current_period(current_time=test_time)
     assert period is None
 
@@ -95,4 +96,4 @@ def test_empty_schedule():
     empty_schedule = BellSchedule.empty_schedule()
     assert empty_schedule.name == 'No Classes'
     assert len(empty_schedule.periods) == 0
-    assert empty_schedule.schedule_date.date() == dt.datetime.today().date()
+    assert empty_schedule.schedule_date.date() == dt.datetime.utcnow().date()

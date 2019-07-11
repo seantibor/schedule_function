@@ -9,6 +9,9 @@ DEFAULT_SCHEDULE_PATH = 'default_schedule.csv'
 DEFAULT_TIMEZONE = pytz.timezone('US/Eastern')
 
 def get_schedules(inputblob: func.InputStream) -> dict:
+    """
+    load all current schedules from the blob storage container
+    """
     try:
         schedules_json = json.loads(inputblob.read().decode('utf-8'))
         if schedules_json:
