@@ -12,9 +12,6 @@ import azure.functions as func
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python Get Schedule function processed a request.')
-    block_blob_service = BlockBlobService(connection_string=os.environ['ScheduleStorageConnectionString'])
-    container_name = os.environ['ScheduleStorageContainerName']
-    blobs = block_blob_service.list_blob_names(container_name)
     
     schedule_date = req.route_params.get('date') or req.params.get('date')
 
@@ -26,12 +23,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     else:
         schedule_date = dt.datetime.today()
 
-    schedule_date_blob_name = f"schedule_{schedule_date}"
-    if schedule_date_blob_name in blobs:
-        schedule_blob = block_blob_service.get_blob_to_stream(container_name, schedule_date_blob_name)
-        sched = get_schedule(schedule_blob)
-    else:
-        sched = bell.BellSchedule.from_csv(filename="default_schedule.csv", schedule_date=schedule_date, timezone=pytz.timezone('US/Eastern'))
+    sched = get_schedule(schedule_date)
 
     if sched:
         func.HttpResponse.mimetype = 'application/json'

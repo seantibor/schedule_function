@@ -12,6 +12,15 @@
       ]
     },
     {
+      "name": "schedulesInput",
+      "type": "cosmosDB",
+      "direction": "in",
+      "databaseName": "pcschedule",
+      "collectionName": "schedules",
+      "sqlQuery": "SELECT * from c where c.schedule_date = {date} OR LEFT(GETCURRENTDATETIME(), 10)",
+      "connectionStringSetting": "CosmosDBConnectionString"
+    },
+    {
       "type": "http",
       "direction": "out",
       "name": "$return"

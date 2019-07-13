@@ -110,6 +110,7 @@ class BellSchedule:
         schedule_dict = {
             "name": self.name,
             "schedule_date": self.schedule_date.astimezone(self.tz).date().isoformat(),
+            "utz_datetime": self.schedule_date.isoformat(),
             "timezone": str(self.tz),
             "periods": self.periods_as_list(serializable=True),
         }
