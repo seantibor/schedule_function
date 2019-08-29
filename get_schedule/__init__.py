@@ -1,11 +1,11 @@
 import logging
-import bell_schedule as bell
+from __app__.SharedCode import bell_schedule as bell
 import datetime as dt
 import json
 from dateutil import tz
 import os
 import pytz
-import schedule_helper_functions as shf
+from __app__.SharedCode import schedule_helper_functions as shf
 
 import azure.functions as func
 

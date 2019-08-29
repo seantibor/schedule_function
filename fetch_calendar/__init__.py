@@ -19,7 +19,7 @@ def main(mytimer: func.TimerRequest, outputblob: func.Out[func.InputStream]) -> 
     )
 
     r = requests.get(cal_url, headers=headers)
-    if r.status_code == requests.codes.ok:
+    if r.ok:
         ical = r.text
         outputblob.set(ical)
     else:

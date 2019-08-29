@@ -1,4 +1,4 @@
-import bell_schedule as bell
+from __app__.SharedCode import bell_schedule as bell
 import logging
 import datetime as dt
 import json
