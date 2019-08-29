@@ -1,6 +1,6 @@
 from bell_schedule import Period, BellSchedule
 import datetime as dt
-import pytest, arrow
+import pytest
 import os
 from freezegun import freeze_time
 import pytz
@@ -21,10 +21,12 @@ def test_create_schedule():
 def test_create_period():
     start_time = timezone.localize(dt.datetime(2019, 5, 12, 8, 20))
     end_time = timezone.localize(dt.datetime(2019, 5, 12, 9, 2))
-    period = Period(name="1", start_time=start_time, end_time=end_time)
+    duration_min = (end_time - start_time).seconds / 60
+    period = Period(name="1", start_time=start_time, end_time=end_time, duration_min=duration_min)
     assert period.name == "1"
     assert period.start_time == start_time
     assert period.end_time == end_time
+    assert period.duration_min == duration_min
 
 def test_add_period_by_attributes(pc_bellschedule):
     start_count = len(pc_bellschedule.periods)
@@ -33,7 +35,7 @@ def test_add_period_by_attributes(pc_bellschedule):
 
 def test_add_period_by_namedtuple(pc_bellschedule):
     start_count = len(pc_bellschedule.periods)
-    test_period = Period("Y", test_date, test_date)
+    test_period = Period("Y", test_date, test_date, 0)
     pc_bellschedule.add_period(period=test_period)
     assert len(pc_bellschedule.periods) == start_count + 1
     assert pc_bellschedule.get_period('Y') == test_period
@@ -88,7 +90,7 @@ def test_remove_period_by_name(pc_bellschedule):
 def test_remove_period_by_namedtuple(pc_bellschedule):
     start_count = len(pc_bellschedule.periods)
     pc_bellschedule.remove_period(
-        period_tup=Period("Y", dt.datetime.now(), dt.datetime.now())
+        period_tup=Period("Y", dt.datetime.now(), dt.datetime.now(), 0)
     )
     assert len(pc_bellschedule.periods) == start_count - 1
 
@@ -96,4 +98,4 @@ def test_empty_schedule():
     empty_schedule = BellSchedule.empty_schedule()
     assert empty_schedule.name == 'No Classes'
     assert len(empty_schedule.periods) == 0
-    assert empty_schedule.schedule_date.date() == dt.datetime.utcnow().date()
+    assert empty_schedule.schedule_date.date() == dt.datetime.now(dt.timezone.utc).date()

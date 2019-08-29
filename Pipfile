@@ -4,12 +4,19 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pytest = "*"
+black = "*"
 
 [packages]
 pytest = "*"
 freezegun = "*"
 pcbellschedule = {editable = true,path = "."}
 pytz = "*"
+azure-functions = "*"
+requests = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

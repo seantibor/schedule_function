@@ -3,12 +3,10 @@ import bell_schedule as bell
 import datetime as dt
 import json
 import requests
-from schedule_helper_functions import get_schedules
 
 import azure.functions as func
 
-def main(req: func.HttpRequest, inputblob: func.InputStream,
-         outputblob: func.Out[func.InputStream]) -> func.HttpResponse:
+def main(req: func.HttpRequest, scheduleOutput: func.Out[func.Document]) -> func.HttpResponse:
     logging.info('Python add_schedules trigger function processed new schedule')
 
     try:
@@ -21,12 +19,7 @@ def main(req: func.HttpRequest, inputblob: func.InputStream,
     else:
         schedule = bell.BellSchedule.from_json(schedule)
 
-    schedules = get_schedules(inputblob)
-
-    schedules[schedule.schedule_date.strftime('%Y-%m-%d')] = schedule
-    output_json = json.dumps({key: value.as_dict() for key, value in schedules.items()})
-    
-    outputblob.set(output_json)
+    scheduleOutput.set(func.Document.from_json(schedule.to_json()))
         
     return func.HttpResponse(
         body=json.dumps(schedule.as_dict()),

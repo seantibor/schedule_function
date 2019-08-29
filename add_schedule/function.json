@@ -12,11 +12,12 @@
       ]
     },
     {
-      "name": "outputblob",
-      "type": "blob",
-      "path": "schedules/schedule_{date}.json",
-      "connection": "ScheduleStorageConnectionString",
-      "direction": "out"
+      "name": "scheduleOutput",
+      "type": "cosmosDB",
+      "direction": "out",
+      "databaseName": "pcschedule",
+      "collectionName": "schedules",
+      "connectionStringSetting": "CosmosDBConnectionString"
     },
     {
       "type": "http",

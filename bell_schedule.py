@@ -2,12 +2,11 @@ from collections import namedtuple, OrderedDict
 import datetime as dt
 import csv
 import os
-import arrow
 import json
 import pytz
 from dateutil import parser
 
-Period = namedtuple("Period", ["name", "start_time", "end_time"])
+Period = namedtuple("Period", ["name", "start_time", "end_time", "duration_min"])
 time_format = "%H:%M"
 datetime_format = "%Y-%m-%dT%H:%M:%S%z"
 
@@ -23,12 +22,13 @@ class BellSchedule:
     schedule_date: the date of the schedule. defaults to today.
     """
     def __init__(
-        self, name: str, timezone: dt.tzinfo = pytz.utc, schedule_date: dt.datetime = dt.datetime.utcnow()
+        self, name: str, timezone: dt.tzinfo = pytz.utc, schedule_date: dt.datetime = dt.datetime.now(dt.timezone.utc)
     ):
         self.periods = OrderedDict()
         self.tz = timezone
         self.schedule_date = schedule_date.astimezone(pytz.utc)
         self.name = name
+        self.ts = dt.datetime.now().timestamp()
 
     def add_period(
         self,
@@ -42,6 +42,7 @@ class BellSchedule:
                 period_name,
                 start_time.astimezone(pytz.utc),
                 end_time.astimezone(pytz.utc),
+                (end_time - start_time).seconds / 60
             )
             
         self.periods[period.name] = period
@@ -63,6 +64,7 @@ class BellSchedule:
                     "name": period.name,
                     "start_time": period.start_time.astimezone(self.tz).isoformat(),
                     "end_time": period.end_time.astimezone(self.tz).isoformat(),
+                    "duration_min": period.duration_min
                 }
                 for period in self.periods.values()
             ]
@@ -94,7 +96,7 @@ class BellSchedule:
 
     def to_csv(self, filename: str) -> None:
         with open(filename, "w") as outfile:
-            fieldnames = ["name", "start_time", "end_time"]
+            fieldnames = ["name", "start_time", "end_time", "duration_min"]
             bellwriter = csv.DictWriter(outfile, fieldnames=fieldnames)
             bellwriter.writeheader()
             for row in self.periods_as_list():
@@ -110,9 +112,9 @@ class BellSchedule:
         schedule_dict = {
             "name": self.name,
             "schedule_date": self.schedule_date.astimezone(self.tz).date().isoformat(),
-            "utz_datetime": self.schedule_date.isoformat(),
+            "ts": self.ts or dt.datetime.now().timestamp(),
             "timezone": str(self.tz),
-            "periods": self.periods_as_list(serializable=True),
+            "periods": self.periods_as_list(serializable=True)
         }
         return schedule_dict
 
@@ -131,12 +133,16 @@ class BellSchedule:
             timezone=timezone,
             schedule_date=parser.parse(sched_json["schedule_date"])
         )
+        new_bs.ts = sched_json.get('ts', dt.datetime.now().timestamp())
         for period in sched_json["periods"]:
+            start_time = parser.parse(period.get("start_time"))
+            end_time = parser.parse(period.get("end_time"))
             new_bs.add_period(
                 period=Period(
-                    period.get("name"), 
-                    parser.parse(period.get("start_time")), 
-                    parser.parse(period.get("end_time"))
+                    period.get("name"),
+                    start_time, 
+                    end_time,
+                    (end_time - start_time).seconds / 60
                 )
             )
         with open('last_schedule.json', 'w') as outfile:
@@ -151,5 +157,5 @@ class BellSchedule:
         return BellSchedule.from_json(sched_json=sched_json)
 
     @classmethod
-    def empty_schedule(cls, schedule_date=dt.datetime.utcnow()):
+    def empty_schedule(cls, schedule_date=dt.datetime.now(dt.timezone.utc)):
         return BellSchedule('No Classes', timezone=pytz.timezone("US/Eastern"), schedule_date=schedule_date)
