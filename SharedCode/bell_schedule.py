@@ -5,6 +5,8 @@ import os
 import json
 import pytz
 from dateutil import parser
+import pathlib
+from typing import Union
 
 Period = namedtuple("Period", ["name", "start_time", "end_time", "duration_min"])
 time_format = "%H:%M"
@@ -72,12 +74,13 @@ class BellSchedule:
             return [period._asdict() for period in self.periods.values()]
 
     @classmethod
-    def from_csv(cls, filename: str, schedule_date: dt.datetime, timezone: dt.tzinfo = pytz.utc):
-        base = os.path.basename(filename)
-        name = os.path.splitext(base)[0]
+    def from_csv(cls, filename: Union[str, pathlib.Path], schedule_date: dt.datetime, timezone: dt.tzinfo = pytz.utc):
+        if isinstance(filename, str):
+            filename = pathlib.Path(filename)
+        name = filename.stem
         schedule_date = schedule_date.astimezone(pytz.utc)
         bell_schedule = BellSchedule(name=name, schedule_date=schedule_date, timezone=timezone)
-        with open(filename) as infile:
+        with filename.open() as infile:
             bellreader = csv.DictReader(infile)
             for row in bellreader:
                 start_time = dt.datetime.strptime(

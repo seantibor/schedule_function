@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, './SharedCode')
 from bell_schedule import Period, BellSchedule
 import datetime as dt
 import pytest
