@@ -1,11 +1,11 @@
 import logging
-from __app__.SharedCode import bell_schedule as bell
+from __app__.SharedCode import bell_schedule as bell #pylint: disable=import-error
 import datetime as dt
 import json
 from dateutil import tz
 import os
 import pytz
-from __app__.SharedCode import schedule_helper_functions as shf
+from __app__.SharedCode import schedule_helper_functions as shf #pylint: disable=import-error
 import pathlib
 
 import azure.functions as func

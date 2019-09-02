@@ -1,5 +1,5 @@
 import logging
-from __app__.SharedCode import bell_schedule as bell
+from __app__.SharedCode import bell_schedule as bell #pylint: disable=import-error
 import datetime as dt
 import json
 import requests
