@@ -4,14 +4,13 @@ import datetime as dt
 import json
 from dateutil import tz
 import os
-import pytz
 from __app__.SharedCode import schedule_helper_functions as shf #pylint: disable=import-error
 import pathlib
 
 import azure.functions as func
 
 DEFAULT_SCHEDULE_PATH = pathlib.Path(__file__).parent.parent / 'SharedCode' / 'default_schedule.csv'
-DEFAULT_TIMEZONE = pytz.timezone('US/Eastern')
+DEFAULT_TIMEZONE = tz.gettz('US/Eastern')
 
 
 def main(req: func.HttpRequest, schedulesInput: func.DocumentList) -> func.HttpResponse:
@@ -23,10 +22,10 @@ def main(req: func.HttpRequest, schedulesInput: func.DocumentList) -> func.HttpR
     else:
         schedule_date = dt.datetime.now()
 
-    if shf.is_weekend(schedule_date):
-        schedule = bell.BellSchedule.empty_schedule()
-    elif schedulesInput:
+    if schedulesInput:
         schedule = schedulesInput[0]
+    elif shf.is_weekend(schedule_date):
+        schedule = bell.BellSchedule.empty_schedule()
     else:
         schedule = bell.BellSchedule.from_csv(filename=DEFAULT_SCHEDULE_PATH, schedule_date=schedule_date, timezone=DEFAULT_TIMEZONE)
 

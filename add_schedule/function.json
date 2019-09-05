@@ -6,7 +6,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "schedule/{date}",
+      "route": "{campus}/{division}/schedule/{date}",
       "methods": [
         "post"
       ]
@@ -16,7 +16,8 @@
       "type": "cosmosDB",
       "direction": "out",
       "databaseName": "pcschedule",
-      "collectionName": "schedules",
+      "collectionName": "{campus}-{division}-schedules",
+      "createIfNotExists": false,
       "connectionStringSetting": "CosmosDBConnectionString"
     },
     {

@@ -3,11 +3,11 @@ import logging
 import datetime as dt
 import json
 import azure.functions as func
-from dateutil import tz
+import pytz
 import os
 
 DEFAULT_SCHEDULE_PATH = 'default_schedule.csv'
-DEFAULT_TIMEZONE = tz.gettz('US/Eastern')
+DEFAULT_TIMEZONE = pytz.timezone('US/Eastern')
 
 def get_schedules(inputblob: func.InputStream) -> dict:
     """

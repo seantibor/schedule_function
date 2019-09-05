@@ -6,7 +6,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "route": "ftl/middleschool/schedule/{date?}",
+      "route": "{campus}/{division}/schedule/{date?}",
       "methods": [
         "get"
       ]
@@ -16,7 +16,7 @@
       "type": "cosmosDB",
       "direction": "in",
       "databaseName": "pcschedule",
-      "collectionName": "schedules",
+      "collectionName": "{campus}-{division}-schedules",
       "sqlQuery": "SELECT TOP 1 * from c where c.schedule_date = {date} and c.ts <= GETCURRENTTIMESTAMP() order by c.ts DESC",
       "connectionStringSetting": "CosmosDBConnectionString"
     },
