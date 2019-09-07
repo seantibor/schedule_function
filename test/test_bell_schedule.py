@@ -8,13 +8,15 @@ import os
 from freezegun import freeze_time
 import pytz
 
-timezone = tz.gettz("US/Eastern")
+tzname = "US/Eastern"
+timezone = tz.gettz(tzname)
+
 test_date = dt.datetime(2019, 5, 15, 8, 25, tzinfo=timezone)
 
 @pytest.fixture(scope="module")
 def pc_bellschedule():
     return BellSchedule.from_csv(
-        "test/test_input.csv", schedule_date=test_date, timezone=timezone
+        "test/test_input.csv", schedule_date=test_date, tzname=tzname
     )
 
 def test_create_schedule():
@@ -61,7 +63,7 @@ def test_csv_to_schedule():
     # Setup
     csv_file = "test/test_input.csv"
     pc_bellschedule = BellSchedule.from_csv(
-        csv_file, schedule_date=test_date, timezone=timezone
+        csv_file, schedule_date=test_date, tzname=tzname
     )
     assert isinstance(pc_bellschedule, BellSchedule)
     assert len(pc_bellschedule.periods) == 13

@@ -18,22 +18,23 @@ class BellSchedule:
 
     Parameters:
     name: schedule name for human display
-    timezone: a tz object that will localize the dates and times 
+    tzname: a string that will be used to localize the dates and times 
         in the schedule. By default, all datetime objects are represented in UTC.
     schedule_date: the date of the schedule. defaults to today.
     """
+
     def __init__(
-        self, name: str, timezone: Union[dt.tzinfo, str] = tz.UTC, schedule_date: dt.datetime = dt.datetime.utcnow()
+        self,
+        name: str,
+        tzname: str = "UTC",
+        schedule_date: dt.datetime = dt.datetime.now(tz=tz.UTC),
     ):
-        if isinstance(timezone, str):
-            self.tz = tz.gettz(timezone)
-        else:
-            self.tz = timezone
+        self.tz = tz.gettz(tzname)
         self.periods = OrderedDict()
-        self.schedule_date = schedule_date.astimezone(tz.UTC)
-        self.tzname = dt.datetime.tzname(schedule_date.astimezone(self.tz))
+        self.schedule_date = schedule_date
+        self.tzname = tzname
         self.name = name
-        self.ts = dt.datetime.now().timestamp()
+        self.ts = dt.datetime.utcnow().timestamp()
 
     def add_period(
         self,
@@ -47,11 +48,10 @@ class BellSchedule:
                 period_name,
                 start_time.astimezone(tz.UTC),
                 end_time.astimezone(tz.UTC),
-                (end_time - start_time).seconds / 60
+                (end_time - start_time).seconds / 60,
             )
-            
+
         self.periods[period.name] = period
-            
 
     def remove_period(self, period_name: str = None, period_tup: Period = None) -> None:
         if period_tup:
@@ -69,7 +69,7 @@ class BellSchedule:
                     "name": period.name,
                     "start_time": period.start_time.astimezone(self.tz).isoformat(),
                     "end_time": period.end_time.astimezone(self.tz).isoformat(),
-                    "duration_min": period.duration_min
+                    "duration_min": period.duration_min,
                 }
                 for period in self.periods.values()
             ]
@@ -77,25 +77,36 @@ class BellSchedule:
             return [period._asdict() for period in self.periods.values()]
 
     @classmethod
-    def from_csv(cls, filename: Union[str, pathlib.Path], schedule_date: dt.datetime, timezone: dt.tzinfo = tz.UTC):
+    def from_csv(
+        cls,
+        filename: Union[str, pathlib.Path],
+        schedule_date: dt.datetime,
+        tzname: str = "UTC",
+    ):
+        timezone = tz.gettz(tzname)
         if isinstance(filename, str):
             filename = pathlib.Path(filename)
         name = filename.stem
         schedule_date = schedule_date.astimezone(tz.UTC)
-        bell_schedule = BellSchedule(name=name, schedule_date=schedule_date, timezone=timezone)
+        bell_schedule = BellSchedule(
+            name=name, schedule_date=schedule_date, tzname=tzname
+        )
         with filename.open() as infile:
             bellreader = csv.DictReader(infile)
             for row in bellreader:
                 start_time = dt.datetime.strptime(
-                    f"{row['start_time']}",
-                    time_format
+                    f"{row['start_time']}", time_format
                 ).time()
-                end_time = dt.datetime.strptime(f"{row['end_time']}",
-                    time_format
+                end_time = dt.datetime.strptime(
+                    f"{row['end_time']}", time_format
                 ).time()
                 schedule_date_local = schedule_date.astimezone(timezone).date()
-                start_time = dt.datetime.combine(schedule_date_local, start_time).astimezone(tz.UTC).replace(tzinfo=timezone)
-                end_time = dt.datetime.combine(schedule_date_local, end_time).astimezone(tz.UTC).replace(tzinfo=timezone)
+                start_time = dt.datetime.combine(
+                    schedule_date_local, start_time, tzinfo=timezone
+                )
+                end_time = dt.datetime.combine(
+                    schedule_date_local, end_time, tzinfo=timezone
+                )
                 bell_schedule.add_period(row["name"], start_time, end_time)
 
         return bell_schedule
@@ -108,7 +119,7 @@ class BellSchedule:
             for row in self.periods_as_list():
                 bellwriter.writerow(row)
 
-    def current_period(self, current_time=dt.datetime.now()):
+    def current_period(self, current_time=dt.datetime.utcnow()):
         for period in self.periods.values():
             if period.start_time <= current_time and current_time < period.end_time:
                 return period
@@ -117,10 +128,10 @@ class BellSchedule:
     def as_dict(self):
         schedule_dict = {
             "name": self.name,
-            "schedule_date": self.schedule_date.astimezone(self.tz).date().isoformat(),
+            "schedule_date": self.schedule_date.astimezone(self.tz).isoformat(),
             "ts": self.ts or dt.datetime.now().timestamp(),
-            "timezone": self.tzname,
-            "periods": self.periods_as_list(serializable=True)
+            "tzname": self.tzname,
+            "periods": self.periods_as_list(serializable=True),
         }
         return schedule_dict
 
@@ -129,31 +140,27 @@ class BellSchedule:
 
     @classmethod
     def from_json(cls, sched_json: json):
-        try:
-            timezone = tz.gettz(sched_json["timezone"])
-        except ValueError:
-            timezone = tz.UTC
-        
+
         new_bs = BellSchedule(
             sched_json["name"],
-            timezone=timezone,
-            schedule_date=parser.parse(sched_json["schedule_date"])
+            tzname=sched_json['tzname'],
+            schedule_date=parser.parse(sched_json["schedule_date"]),
         )
-        new_bs.ts = sched_json.get('ts', dt.datetime.now().timestamp())
+        new_bs.ts = sched_json.get("ts", dt.datetime.utcnow().timestamp())
         for period in sched_json["periods"]:
             start_time = parser.parse(period.get("start_time"))
             end_time = parser.parse(period.get("end_time"))
             new_bs.add_period(
                 period=Period(
                     period.get("name"),
-                    start_time, 
+                    start_time,
                     end_time,
-                    (end_time - start_time).seconds / 60
+                    (end_time - start_time).seconds / 60,
                 )
             )
-        with open('last_schedule.json', 'w') as outfile:
+        with open("last_schedule.json", "w") as outfile:
             outfile.write(new_bs.schedule_date.isoformat())
-        
+
         return new_bs
 
     @classmethod
@@ -163,5 +170,8 @@ class BellSchedule:
         return BellSchedule.from_json(sched_json=sched_json)
 
     @classmethod
-    def empty_schedule(cls, schedule_date=dt.datetime.now(dt.timezone.utc)):
-        return BellSchedule('No Classes', timezone=tz.gettz("US/Eastern"), schedule_date=schedule_date)
+    def empty_schedule(cls, schedule_date=dt.datetime.utcnow()):
+        return BellSchedule(
+            "No Classes", tzname="US/Eastern", schedule_date=schedule_date
+        )
+

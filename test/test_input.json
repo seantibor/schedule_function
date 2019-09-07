@@ -1,7 +1,7 @@
 {
     "name": "50-30-10",
     "schedule_date": "2019-07-08",
-    "timezone": "US/Eastern",
+    "tzname": "US/Eastern",
     "periods": [
         {
             "name": "Warning",
