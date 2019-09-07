@@ -128,7 +128,7 @@ class BellSchedule:
     def as_dict(self):
         schedule_dict = {
             "name": self.name,
-            "schedule_date": self.schedule_date.astimezone(self.tz).isoformat(),
+            "schedule_date": self.schedule_date.isoformat(),
             "ts": self.ts or dt.datetime.now().timestamp(),
             "tzname": self.tzname,
             "periods": self.periods_as_list(serializable=True),
