@@ -14,14 +14,11 @@ def main(req: func.HttpRequest, scheduleOutput: func.Out[func.Document]) -> func
     except ValueError:
         return func.HttpResponse(
              "Please pass a properly formatted schedule object in the request body",
-             status_code=400
-        )
-    else:
-        schedule = bell.BellSchedule.from_json(schedule)
+             status_code=400)
 
-    scheduleOutput.set(func.Document.from_json(schedule.to_json()))
+    scheduleOutput.set(func.Document.from_json(json.dumps(schedule)))
         
     return func.HttpResponse(
-        body=json.dumps(schedule.as_dict()),
+        body=json.dumps(schedule),
         mimetype='application/json'
     )

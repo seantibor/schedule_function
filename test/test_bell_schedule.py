@@ -2,13 +2,14 @@ import sys
 sys.path.insert(0, './SharedCode')
 from SharedCode.bell_schedule import Period, BellSchedule
 import datetime as dt
+from dateutil import tz
 import pytest
 import os
 from freezegun import freeze_time
 import pytz
 
-timezone = pytz.timezone("US/Eastern")
-test_date = timezone.localize(dt.datetime(2019, 5, 15, 8, 25))
+timezone = tz.gettz("US/Eastern")
+test_date = dt.datetime(2019, 5, 15, 8, 25, tzinfo=timezone)
 
 @pytest.fixture(scope="module")
 def pc_bellschedule():
@@ -21,8 +22,8 @@ def test_create_schedule():
     pass
 
 def test_create_period():
-    start_time = timezone.localize(dt.datetime(2019, 5, 12, 8, 20))
-    end_time = timezone.localize(dt.datetime(2019, 5, 12, 9, 2))
+    start_time = dt.datetime(2019, 5, 12, 8, 20, tzinfo=timezone)
+    end_time = dt.datetime(2019, 5, 12, 9, 2, tzinfo=timezone)
     duration_min = (end_time - start_time).seconds / 60
     period = Period(name="1", start_time=start_time, end_time=end_time, duration_min=duration_min)
     assert period.name == "1"
@@ -58,7 +59,6 @@ def test_schedule_to_json(pc_bellschedule):
 @freeze_time(test_date)
 def test_csv_to_schedule():
     # Setup
-    test_date = timezone.localize(dt.datetime(2019, 7, 7))
     csv_file = "test/test_input.csv"
     pc_bellschedule = BellSchedule.from_csv(
         csv_file, schedule_date=test_date, timezone=timezone
@@ -78,7 +78,7 @@ def test_current_period(pc_bellschedule):
     assert period.name == "1"
 
 def test_no_current_period(pc_bellschedule):
-    test_time = timezone.localize(dt.datetime(2019, 5, 14, 18, 25))
+    test_time = dt.datetime(2019, 5, 14, 18, 25, tzinfo=timezone)
     period = pc_bellschedule.current_period(current_time=test_time)
     assert period is None
 
