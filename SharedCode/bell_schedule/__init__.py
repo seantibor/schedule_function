@@ -155,16 +155,18 @@ class BellSchedule:
     @classmethod
     def from_json(cls, sched_json: json):
         timezone = tz.gettz(sched_json['tzname'])
+        schedule_date = dt.datetime.strptime(sched_json["schedule_date"], date_format)
+        schedule_date = schedule_date.replace(tzinfo=timezone)
 
         new_bs = BellSchedule(
             sched_json["name"],
             tzname=sched_json["tzname"],
-            schedule_date=parser.parse(sched_json["schedule_date"]).replace(tzinfo=timezone),
+            schedule_date=schedule_date,
         )
         new_bs.ts = sched_json.get("ts", dt.datetime.utcnow().timestamp())
         for period in sched_json["periods"]:
-            start_time = parser.parse(period.get("start_time"))
-            end_time = parser.parse(period.get("end_time"))
+            start_time = parser.parse(period.get("start_time"), default=schedule_date)
+            end_time = parser.parse(period.get("end_time"), default=schedule_date)
             new_bs.add_period(
                 period=Period(
                     period.get("name"),
