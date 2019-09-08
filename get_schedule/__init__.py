@@ -1,5 +1,5 @@
 import logging
-from __app__.SharedCode import bell_schedule as bell #pylint: disable=import-error
+import bell_schedule as bell #pylint: disable=import-error
 import datetime as dt
 import json
 from dateutil import tz, parser
@@ -11,6 +11,7 @@ import azure.functions as func
 
 DEFAULT_SCHEDULE_PATH = pathlib.Path(__file__).parent.parent / 'SharedCode' / 'default_schedule.csv'
 DEFAULT_TZNAME = 'America/New_York'
+DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 
 
 
@@ -18,10 +19,12 @@ def main(req: func.HttpRequest, schedulesInput: func.DocumentList) -> func.HttpR
     logging.info('Python Get Schedule function processed a request.')
     logging.info(DEFAULT_SCHEDULE_PATH)
 
-    if 'date' in req.route_params:
-        schedule_date = parser.parse(req.route_params['date'])
+    schedule_date = req.route_params.get('date')
+    if schedule_date:
+        schedule_date = dt.datetime.strptime(schedule_date, DEFAULT_DATE_FORMAT)
     else:
-        schedule_date = dt.datetime.now(tz=tz.gettz(DEFAULT_TZNAME))
+        schedule_date = dt.datetime.today()
+    schedule_date = schedule_date.replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
 
     if schedulesInput:
         schedule = schedulesInput[0]
