@@ -10,9 +10,10 @@ from collections import namedtuple, OrderedDict
 import datetime as dt
 import csv
 import json
-from dateutil import parser, tz
+from dateutil import tz
 import pathlib
 from typing import Union
+import iso8601
 
 Period = namedtuple("Period", ["name", "start_time", "end_time", "duration_min"])
 time_format = "%H:%M"
@@ -165,8 +166,8 @@ class BellSchedule:
         )
         new_bs.ts = sched_json.get("ts", dt.datetime.utcnow().timestamp())
         for period in sched_json["periods"]:
-            start_time = parser.parse(period.get("start_time"), default=schedule_date)
-            end_time = parser.parse(period.get("end_time"), default=schedule_date)
+            start_time = iso8601.parse_date(period.get("start_time"))
+            end_time = iso8601.parse_date(period.get("end_time"))
             new_bs.add_period(
                 period=Period(
                     period.get("name"),
