@@ -69,12 +69,15 @@ async def main(
     yesterday_url = urljoin(
             req.url, (schedule_date - dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
         )
+    bookmark_url = urljoin(req.url, f'/api/{campus}/{division}/schedule/')
+
     variables = {
         "campus": names[campus],
         "division": names[division],
         "schedule_name": names.get(schedule.name, schedule.name),
         "yesterday": yesterday_url,
-        "tomorrow": tomorrow_url
+        "tomorrow": tomorrow_url,
+        "bookmark_url": bookmark_url
     }
     template_path = pathlib.Path(__file__).parent / "templates"
 
