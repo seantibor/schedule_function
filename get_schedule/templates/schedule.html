@@ -1,0 +1,31 @@
+<html>
+    <head>
+        <title>{{ schedule.schedule_date.strftime('%B %d, %Y') }} {{ division }} Bell Schedule</title>
+    </head>
+    <body>
+        <div id="title">
+            <h1 id="schedule_name">{{schedule.name}}</h1>
+        </div>
+        <div id="details">
+            <p><span class="label">Campus: </span><span class="value">{{campus}}</span></p>
+            <p><span class="label">Division: </span><span class="value">{{division}}</span></p>
+            <p><span class="label">Schedule Date: </span><span class="value">{{ schedule.schedule_date.strftime('%B %d, %Y') }}</span></p>
+            <p><span class="label">Timezone: </span><span class="value">{{schedule.tzname}}</span></p>
+        </div>
+        <div id="periods">
+            <table>
+                <tr>
+                    <th>Period</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Duration (minutes)</th>
+                </tr>{% for period in schedule.periods.values() %}<tr>
+                        <td>{{ period.name }}</td>
+                        <td>{{ period.start_time.strftime('%I:%M %p ') }}</td>
+                        <td>{{ period.end_time.strftime('%I:%M %p ') }}</td>
+                        <td>{{ period.duration_min|round|int }} min</td>
+                    {% endfor %}
+                </tr>
+        </div>
+    </body>
+</html>

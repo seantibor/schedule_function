@@ -60,8 +60,8 @@ class BellSchedule:
         if period is None:
             period = Period(
                 period_name,
-                start_time.astimezone(tz=self.tz),
-                end_time.astimezone(tz=self.tz),
+                start_time,
+                end_time,
                 (end_time - start_time).seconds / 60,
             )
 
@@ -81,8 +81,8 @@ class BellSchedule:
             return [
                 {
                     "name": period.name,
-                    "start_time": period.start_time.isoformat(),
-                    "end_time": period.end_time.isoformat(),
+                    "start_time": period.start_time.astimezone(self.tz).isoformat(),
+                    "end_time": period.end_time.astimezone(self.tz).isoformat(),
                     "duration_min": period.duration_min,
                 }
                 for period in self.periods.values()
