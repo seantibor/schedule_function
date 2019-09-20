@@ -23,10 +23,10 @@ DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 async def main(
     req: func.HttpRequest, schedulesInput: func.DocumentList
 ) -> func.HttpResponse:
-    logging.info("Python Get Schedule function processed a request.")
-    logging.info(DEFAULT_SCHEDULE_PATH)
+
 
     schedule_date = req.route_params.get("date")
+    logging.info(f"Python Get Schedule function processed a request for {schedule_date}.")
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
     names = {
