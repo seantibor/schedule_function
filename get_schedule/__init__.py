@@ -7,6 +7,7 @@ import os
 from __app__.SharedCode import schedule_helper_functions as shf # pylint: disable=import-error
 import pathlib
 from urllib.parse import urljoin
+from jinja2 import TemplateNotFound
 
 import azure.functions as func
 
@@ -52,5 +53,11 @@ async def main(
 
     variables={'campus': names[campus],
                 'division': names[division]}
-    return func.HttpResponse(body=shf.render_html_schedule(schedule, variables), mimetype='text/html')
+    template_path = pathlib.Path(__file__).parent / 'templates'
+    
+    try:
+        html = shf.render_html_schedule(schedule, variables, search_path=template_path)
+    except TemplateNotFound:
+        print(f"Searched for templates in {template_path.as_posix()}")
+    return func.HttpResponse(body=html, mimetype='text/html')
 
