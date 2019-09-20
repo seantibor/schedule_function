@@ -4,7 +4,9 @@ import datetime as dt
 import json
 from dateutil import tz
 import os
-from __app__.SharedCode import schedule_helper_functions as shf # pylint: disable=import-error
+from __app__.SharedCode import (
+    schedule_helper_functions as shf,
+)  # pylint: disable=import-error
 import pathlib
 from urllib.parse import urljoin
 from jinja2 import TemplateNotFound
@@ -27,13 +29,23 @@ async def main(
     schedule_date = req.route_params.get("date")
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
-    names = {'ftl': 'Fort Lauderdale', 'boca': 'Boca Raton', 'middleschool': 'Middle School', 'upperschool': 'Upper School'}
+    names = {
+        "ftl": "Fort Lauderdale",
+        "boca": "Boca Raton",
+        "middleschool": "Middle School",
+        "upperschool": "Upper School",
+        "default_schedule": "Regular Schedule",
+    }
 
     if schedule_date:
-        schedule_date = dt.datetime.strptime(schedule_date, DEFAULT_DATE_FORMAT).replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
+        schedule_date = dt.datetime.strptime(
+            schedule_date, DEFAULT_DATE_FORMAT
+        ).replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
     else:
         schedule_date = dt.datetime.today().replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
-        redirect_url = urljoin(req.url + '/', schedule_date.strftime(DEFAULT_DATE_FORMAT))
+        redirect_url = urljoin(
+            req.url + "/", schedule_date.strftime(DEFAULT_DATE_FORMAT)
+        )
         print(f"Redirecting missing date code to {redirect_url}")
         return func.HttpResponse(status_code=301, headers={"Location": redirect_url})
 
@@ -48,16 +60,27 @@ async def main(
             tzname=DEFAULT_TZNAME,
         )
 
-    if req.headers.get('Accept') =='application/json':
+    if req.headers.get("Accept") == "application/json":
         return func.HttpResponse(body=schedule.to_json(), mimetype="application/json")
 
-    variables={'campus': names[campus],
-                'division': names[division]}
-    template_path = pathlib.Path(__file__).parent / 'templates'
-    
+    tomorrow_url = urljoin(
+            req.url, (schedule_date + dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
+        )
+    yesterday_url = urljoin(
+            req.url, (schedule_date - dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
+        )
+    variables = {
+        "campus": names[campus],
+        "division": names[division],
+        "schedule_name": names.get(schedule.name, schedule.name),
+        "yesterday": yesterday_url,
+        "tomorrow": tomorrow_url
+    }
+    template_path = pathlib.Path(__file__).parent / "templates"
+
     try:
         html = shf.render_html_schedule(schedule, variables, search_path=template_path)
     except TemplateNotFound:
         print(f"Searched for templates in {template_path.as_posix()}")
-    return func.HttpResponse(body=html, mimetype='text/html')
+    return func.HttpResponse(body=html, mimetype="text/html")
 

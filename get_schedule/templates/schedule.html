@@ -1,31 +1,52 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
     <head>
         <title>{{ schedule.schedule_date.strftime('%B %d, %Y') }} {{ division }} Bell Schedule</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </head>
     <body>
-        <div id="title">
-            <h1 id="schedule_name">{{schedule.name}}</h1>
-        </div>
-        <div id="details">
-            <p><span class="label">Campus: </span><span class="value">{{campus}}</span></p>
-            <p><span class="label">Division: </span><span class="value">{{division}}</span></p>
-            <p><span class="label">Schedule Date: </span><span class="value">{{ schedule.schedule_date.strftime('%B %d, %Y') }}</span></p>
-            <p><span class="label">Timezone: </span><span class="value">{{schedule.tzname}}</span></p>
-        </div>
-        <div id="periods">
-            <table>
-                <tr>
-                    <th>Period</th>
-                    <th>Start</th>
-                    <th>End</th>
-                    <th>Duration (minutes)</th>
-                </tr>{% for period in schedule.periods.values() %}<tr>
-                        <td>{{ period.name }}</td>
-                        <td>{{ period.start_time.strftime('%I:%M %p ') }}</td>
-                        <td>{{ period.end_time.strftime('%I:%M %p ') }}</td>
-                        <td>{{ period.duration_min|round|int }} min</td>
-                    {% endfor %}
-                </tr>
+        <div class='container'>
+            <div id="title" class='jumbotron'>
+                <h1 id="schedule_name" class='text-center'>{{schedule_name}}</h1>
+                <p><small><span class="campus label">Campus: </span><span class="value">{{campus}}</span><br>
+                <span class="division label">Division: </span><span class="value">{{division}}</span><br>
+                <span class="date label">Schedule Date: </span><span class="value">{{ schedule.schedule_date.astimezone(schedule.tz).strftime('%B %d, %Y') }}</span><br>
+                <span class="timezone label">Timezone: </span><span class="value">{{schedule.tzname}}</span></small></p>
+            </div>
+            <div class='row'>
+                <div class='col text-center'>
+                <a href='{{ yesterday }}' class="btn btn-primary">Yesterday</a>
+                <a href='{{ tomorrow }}' class="btn btn-primary">Tomorrow</a>
+                </div>
+            </div>
+
+            <div id="periods" class='row'>
+                <div class='col'>
+                {% if schedule.periods|length() > 0 %}
+                <table class='table'>
+                    <tr class='period-header'>
+                        <th>Period</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Duration (minutes)</th>
+                    </tr>{% for period in schedule.periods.values() %}<tr class='period-row'>
+                            <td class='period-name'>{{ period.name }}</td>
+                            <td class='period-start time'>{{ period.start_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
+                            <td class='period-end time'>{{ period.end_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
+                            <td class='period-duration duration'>{{ period.duration_min|round|int }} min</td>
+                        {% endfor %}
+                    </tr>
+                </table>
+                {% else %}
+                <div class="no-classes">No classes today</div>
+                {% endif %}
+                </div>
+            </div>
         </div>
     </body>
 </html>
