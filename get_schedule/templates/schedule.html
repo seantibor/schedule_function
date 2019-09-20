@@ -8,13 +8,18 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <style>
+        .bg-primary {
+            background-color: #064614;
+        }
+        </style>
     </head>
     <body>
         <div class='container'>
             <div id="title" class='jumbotron'>
                 <h1 id="schedule_name" class='text-center'>{{schedule_name}}</h1>
                 <h2 class='text-center'>{{campus}} {{division}}</h2>
-                <h3 class='text-center'>{{ schedule.schedule_date.astimezone(schedule.tz).strftime('%A, %b %d, %Y') }}</h3>
+                <h3 class='text-center'>{{ schedule.schedule_date.astimezone(schedule.tz).strftime('%A, %b %-d, %Y') }}</h3>
             </div>
             <div class='row'>
                 <div class='col text-center'>
@@ -25,6 +30,11 @@
                 <div class='col text-center'>
                 <a href='{{ yesterday }}' class="btn btn-primary"><- Yesterday</a>
                 </div>
+                {% if not today %}
+                <div class='col text-center'>
+                <a href='{{ bookmark_url }}' class="btn btn-primary">Jump to today</a>
+                </div>
+                {% endif %}
                 <div class='col text-center'>
                 <a href='{{ tomorrow }}' class="btn btn-primary">Tomorrow -></a>
                 </div>
@@ -52,7 +62,7 @@
                     </tbody>
                 </table>
                 {% else %}
-                <div class="no-classes">No classes today</div>
+                <div class="jumbotron text-center no-classes"><h3>{{ schedule_name }}</h3></div>
                 {% endif %}
                 </div>
             </div>

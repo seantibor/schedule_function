@@ -53,6 +53,7 @@ async def main(
         schedule = bell.BellSchedule.from_json(schedulesInput[0])
     elif shf.is_weekend(schedule_date):
         schedule = bell.BellSchedule.empty_schedule(schedule_date)
+        schedule.name = 'No Classes - Weekend'
     else:
         schedule = bell.BellSchedule.from_csv(
             filename=DEFAULT_SCHEDULE_PATH,
@@ -77,7 +78,8 @@ async def main(
         "schedule_name": names.get(schedule.name, schedule.name),
         "yesterday": yesterday_url,
         "tomorrow": tomorrow_url,
-        "bookmark_url": bookmark_url
+        "bookmark_url": bookmark_url,
+        "today": schedule_date.date() == dt.datetime.today().date()
     }
     template_path = pathlib.Path(__file__).parent / "templates"
 
