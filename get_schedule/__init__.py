@@ -1,15 +1,12 @@
 import logging
-from __app__.SharedCode import bell_schedule as bell  # pylint: disable=import-error
 import datetime as dt
-import json
 from dateutil import tz
-import os
-from __app__.SharedCode import (
-    schedule_helper_functions as shf,
-)  # pylint: disable=import-error
 import pathlib
 from urllib.parse import urljoin
 from jinja2 import TemplateNotFound
+from __app__.SharedCode import schedule_helper_functions as shf # pylint: disable=import-error
+from __app__.SharedCode import bell_schedule as bell  # pylint: disable=import-error
+
 
 import azure.functions as func
 
@@ -17,6 +14,7 @@ DEFAULT_SCHEDULE_PATH = (
     pathlib.Path(__file__).parent.parent / "SharedCode" / "default_schedule.csv"
 )
 DEFAULT_TZNAME = "America/New_York"
+DEFAULT_TZINFO = tz.gettz(DEFAULT_TZNAME)
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 
 
@@ -37,7 +35,7 @@ async def main(
         "default_schedule": "Regular Schedule",
     }
 
-    if schedule_date:
+    if schedule_date is not None:
         schedule_date = dt.datetime.strptime(
             schedule_date, DEFAULT_DATE_FORMAT
         ).replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
