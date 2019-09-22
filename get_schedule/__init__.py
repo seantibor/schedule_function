@@ -38,13 +38,13 @@ async def main(
     if schedule_date is not None:
         schedule_date = dt.datetime.strptime(
             schedule_date, DEFAULT_DATE_FORMAT
-        ).replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
+        ).replace(tzinfo=DEFAULT_TZINFO)
     else:
-        schedule_date = dt.datetime.today().replace(tzinfo=tz.gettz(DEFAULT_TZNAME))
+        schedule_date = dt.datetime.now(tz=DEFAULT_TZINFO).date()
         redirect_url = urljoin(
             req.url + "/", schedule_date.strftime(DEFAULT_DATE_FORMAT)
         )
-        print(f"Redirecting missing date code to {redirect_url}")
+        logging.info(f"Redirecting missing date code to {redirect_url}")
         return func.HttpResponse(status_code=301, headers={"Location": redirect_url})
 
     if schedulesInput:
@@ -77,7 +77,7 @@ async def main(
         "yesterday": yesterday_url,
         "tomorrow": tomorrow_url,
         "bookmark_url": bookmark_url,
-        "today": schedule_date.date() == dt.datetime.today().date()
+        "today": schedule_date.date() == dt.datetime.now(tz=DEFAULT_TZINFO).date()
     }
     template_path = pathlib.Path(__file__).parent / "templates"
 
