@@ -34,7 +34,7 @@
                 </div>
                 {% if not today %}
                 <div class='col text-center'>
-                <a href='{{ bookmark_url }}' class="btn btn-primary">Jump to today</a>
+                <a href='{{ today_url }}' class="btn btn-primary">Jump to today</a>
                 </div>
                 {% endif %}
                 <div class='col text-center'>
@@ -54,7 +54,8 @@
                         <th class='text-right'>Duration (minutes)</th>
                     </tr>
                     </thead>
-                    <tbody>{% for period in schedule.periods.values() %}<tr class='period-row'>
+                    <tbody>{% for period in schedule.periods.values() %}
+                    <tr class='period-row'>
                             <td class='period-name'>{{ period.name }}</td>
                             <td class='period-start time'>{{ period.start_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
                             <td class='period-end time'>{{ period.end_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>

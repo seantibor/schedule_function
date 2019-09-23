@@ -45,7 +45,7 @@ async def main(
             req.url + "/", schedule_date.strftime(DEFAULT_DATE_FORMAT)
         )
         logging.info(f"Redirecting missing date code to {redirect_url}")
-        return func.HttpResponse(status_code=301, headers={"Location": redirect_url})
+        return func.HttpResponse(status_code=307, headers={"Location": redirect_url})
 
     if schedulesInput:
         schedule = bell.BellSchedule.from_json(schedulesInput[0])
@@ -77,6 +77,7 @@ async def main(
         "yesterday": yesterday_url,
         "tomorrow": tomorrow_url,
         "bookmark_url": bookmark_url,
+        "today_url": urljoin(bookmark_url, dt.datetime.now(tz=DEFAULT_TZINFO).date().strftime(DEFAULT_DATE_FORMAT)),
         "today": schedule_date.date() == dt.datetime.now(tz=DEFAULT_TZINFO).date()
     }
     template_path = pathlib.Path(__file__).parent / "templates"
