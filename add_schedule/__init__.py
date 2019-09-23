@@ -18,6 +18,7 @@ def main(req: func.HttpRequest, scheduleOutput: func.Out[func.Document]) -> func
     else:
         schedule = bell.BellSchedule.from_json(schedule)
 
+    
     scheduleOutput.set(func.Document.from_json(schedule.to_json()))
         
     return func.HttpResponse(

@@ -38,6 +38,8 @@ class BellSchedule:
         name: str,
         tzname: str = "Etc/UTC",
         schedule_date: dt.datetime = dt.datetime.now(tz=tz.UTC),
+        campus: str = None,
+        division: str = None,
     ):
         # Datetime objects must be timezone-aware
         if schedule_date.tzinfo is None:
@@ -48,6 +50,8 @@ class BellSchedule:
         self.schedule_date = schedule_date
         self.tzname = tzname
         self.name = name
+        self.campus = campus
+        self.division = division
         self.ts = dt.datetime.utcnow().timestamp() #used for caching
 
     def add_period(
@@ -95,6 +99,8 @@ class BellSchedule:
         cls,
         filename: Union[str, pathlib.Path],
         schedule_date: dt.datetime,
+        campus: str = None,
+        division: str = None,
         tzname: str = "Etc/UTC",
     ):
         timezone = tz.gettz(tzname)
@@ -104,24 +110,28 @@ class BellSchedule:
         if schedule_date.tzinfo is None:
             raise ValueError("schedule_date missing timezone info")
         bell_schedule = BellSchedule(
-            name=name, schedule_date=schedule_date, tzname=tzname
+            name=name, schedule_date=schedule_date, tzname=tzname, campus=campus, division=division
         )
         with filename.open() as infile:
             bellreader = csv.DictReader(infile)
             for row in bellreader:
-                start_time = dt.datetime.strptime(
-                    f"{row['start_time']}", time_format
-                ).time()
-                end_time = dt.datetime.strptime(
-                    f"{row['end_time']}", time_format
-                ).time()
-                schedule_date_local = schedule_date.date()
-                start_time = dt.datetime.combine(
-                    schedule_date_local, start_time, tzinfo=timezone
-                )
-                end_time = dt.datetime.combine(
-                    schedule_date_local, end_time, tzinfo=timezone
-                )
+                try:
+                    start_time = iso8601.parse_date(row['start_time'])
+                    end_time = iso8601.parse_date(row['end_time'])
+                except iso8601.ParseError:
+                    start_time = dt.datetime.strptime(
+                        f"{row['start_time']}", time_format
+                    ).time()
+                    end_time = dt.datetime.strptime(
+                        f"{row['end_time']}", time_format
+                    ).time()
+                    schedule_date_local = schedule_date.date()
+                    start_time = dt.datetime.combine(
+                        schedule_date_local, start_time, tzinfo=timezone
+                    )
+                    end_time = dt.datetime.combine(
+                        schedule_date_local, end_time, tzinfo=timezone
+                    )
                 bell_schedule.add_period(row["name"], start_time, end_time)
 
         return bell_schedule
@@ -144,6 +154,8 @@ class BellSchedule:
         schedule_dict = {
             "name": self.name,
             "schedule_date": self.schedule_date.strftime(date_format),
+            "campus": self.campus,
+            "division": self.division,
             "ts": self.ts,
             "tzname": self.tzname,
             "periods": self.periods_as_list(serializable=True),
@@ -164,6 +176,7 @@ class BellSchedule:
             tzname=sched_json["tzname"],
             schedule_date=schedule_date,
         )
+        new_bs.campus, new_bs.division = sched_json.get('campus'), sched_json.get('division')
         new_bs.ts = sched_json.get("ts", dt.datetime.utcnow().timestamp())
         for period in sched_json["periods"]:
             start_time = iso8601.parse_date(period.get("start_time"))

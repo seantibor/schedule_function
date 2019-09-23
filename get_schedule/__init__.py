@@ -4,7 +4,9 @@ from dateutil import tz
 import pathlib
 from urllib.parse import urljoin
 from jinja2 import TemplateNotFound
-from __app__.SharedCode import schedule_helper_functions as shf # pylint: disable=import-error
+from __app__.SharedCode import (
+    schedule_helper_functions as shf,
+)  # pylint: disable=import-error
 from __app__.SharedCode import bell_schedule as bell  # pylint: disable=import-error
 
 
@@ -22,9 +24,10 @@ async def main(
     req: func.HttpRequest, schedulesInput: func.DocumentList
 ) -> func.HttpResponse:
 
-
     schedule_date = req.route_params.get("date")
-    logging.info(f"Python Get Schedule function processed a request for {schedule_date}.")
+    logging.info(
+        f"Python Get Schedule function processed a request for {schedule_date}."
+    )
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
     names = {
@@ -45,30 +48,38 @@ async def main(
             req.url + "/", schedule_date.strftime(DEFAULT_DATE_FORMAT)
         )
         logging.info(f"Redirecting missing date code to {redirect_url}")
-        return func.HttpResponse(status_code=307, headers={"Location": redirect_url})
+        return func.HttpResponse(
+            status_code=307,
+            headers={"Cache-Control": "no-cache", "Location": redirect_url},
+        )
 
     if schedulesInput:
         schedule = bell.BellSchedule.from_json(schedulesInput[0])
     elif shf.is_weekend(schedule_date):
         schedule = bell.BellSchedule.empty_schedule(schedule_date)
-        schedule.name = 'No Classes - Weekend'
+        schedule.name = "No Classes - Weekend"
     else:
         schedule = bell.BellSchedule.from_csv(
-            filename=DEFAULT_SCHEDULE_PATH,
+            filename=DEFAULT_SCHEDULE_PATH.parent
+            / "default_schedules"
+            / f"{campus}_{division}.csv",
             schedule_date=schedule_date,
             tzname=DEFAULT_TZNAME,
+            division=division,
+            campus=campus,
         )
+        schedule.name = "Regular Schedule"
 
     if req.headers.get("Accept") == "application/json":
         return func.HttpResponse(body=schedule.to_json(), mimetype="application/json")
 
     tomorrow_url = urljoin(
-            req.url, (schedule_date + dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
-        )
+        req.url, (schedule_date + dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
+    )
     yesterday_url = urljoin(
-            req.url, (schedule_date - dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
-        )
-    bookmark_url = urljoin(req.url, f'/api/{campus}/{division}/schedule/')
+        req.url, (schedule_date - dt.timedelta(days=1)).strftime(DEFAULT_DATE_FORMAT)
+    )
+    bookmark_url = urljoin(req.url, f"/api/{campus}/{division}/schedule/")
 
     variables = {
         "campus": names[campus],
@@ -77,8 +88,11 @@ async def main(
         "yesterday": yesterday_url,
         "tomorrow": tomorrow_url,
         "bookmark_url": bookmark_url,
-        "today_url": urljoin(bookmark_url, dt.datetime.now(tz=DEFAULT_TZINFO).date().strftime(DEFAULT_DATE_FORMAT)),
-        "today": schedule_date.date() == dt.datetime.now(tz=DEFAULT_TZINFO).date()
+        "today_url": urljoin(
+            bookmark_url,
+            dt.datetime.now(tz=DEFAULT_TZINFO).date().strftime(DEFAULT_DATE_FORMAT),
+        ),
+        "today": schedule_date.date() == dt.datetime.now(tz=DEFAULT_TZINFO).date(),
     }
     template_path = pathlib.Path(__file__).parent / "templates"
 

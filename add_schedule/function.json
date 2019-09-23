@@ -1,29 +1,28 @@
 {
-  "scriptFile": "__init__.py",
-  "bindings": [
-    {
-      "authLevel": "function",
-      "type": "httpTrigger",
-      "direction": "in",
-      "name": "req",
-      "route": "{campus}/{division}/schedule/{date}",
-      "methods": [
-        "post"
-      ]
-    },
-    {
-      "name": "scheduleOutput",
-      "type": "cosmosDB",
-      "direction": "out",
-      "databaseName": "pcschedule",
-      "collectionName": "{campus}-{division}-schedules",
-      "createIfNotExists": false,
-      "connectionStringSetting": "CosmosDBConnectionString"
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "$return"
-    }
-  ]
+    "scriptFile": "__init__.py",
+    "bindings": [{
+            "authLevel": "function",
+            "type": "httpTrigger",
+            "direction": "in",
+            "name": "req",
+            "route": "{campus}/{division}/schedule/{date?}",
+            "methods": [
+                "post"
+            ]
+        },
+        {
+            "name": "scheduleOutput",
+            "type": "cosmosDB",
+            "direction": "out",
+            "databaseName": "pcschedule",
+            "collectionName": "ftl-middleschool-schedules",
+            "createIfNotExists": false,
+            "connectionStringSetting": "CosmosDBConnectionString"
+        },
+        {
+            "type": "http",
+            "direction": "out",
+            "name": "$return"
+        }
+    ]
 }

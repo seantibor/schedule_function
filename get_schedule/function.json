@@ -1,29 +1,28 @@
 {
-  "scriptFile": "__init__.py",
-  "bindings": [
-    {
-      "authLevel": "anonymous",
-      "type": "httpTrigger",
-      "direction": "in",
-      "name": "req",
-      "route": "{campus}/{division}/schedule/{date?}",
-      "methods": [
-        "get"
-      ]
-    },
-    {
-      "name": "schedulesInput",
-      "type": "cosmosDB",
-      "direction": "in",
-      "databaseName": "pcschedule",
-      "collectionName": "{campus}-{division}-schedules",
-      "sqlQuery": "SELECT TOP 1 * from c where c.schedule_date = {date} and c.ts <= GETCURRENTTIMESTAMP() order by c.ts DESC",
-      "connectionStringSetting": "CosmosDBConnectionString"
-    },
-    {
-      "type": "http",
-      "direction": "out",
-      "name": "$return"
-    }
-  ]
+    "scriptFile": "__init__.py",
+    "bindings": [{
+            "authLevel": "anonymous",
+            "type": "httpTrigger",
+            "direction": "in",
+            "name": "req",
+            "route": "{campus}/{division}/schedule/{date?}",
+            "methods": [
+                "get"
+            ]
+        },
+        {
+            "name": "schedulesInput",
+            "type": "cosmosDB",
+            "direction": "in",
+            "databaseName": "pcschedule",
+            "collectionName": "ftl-middleschool-schedules",
+            "sqlQuery": "SELECT TOP 1 * from c where c.schedule_date = {date} and c.campus = {campus} and c.division = {division} and c.ts <= GETCURRENTTIMESTAMP() order by c.ts DESC",
+            "connectionStringSetting": "CosmosDBConnectionString"
+        },
+        {
+            "type": "http",
+            "direction": "out",
+            "name": "$return"
+        }
+    ]
 }
