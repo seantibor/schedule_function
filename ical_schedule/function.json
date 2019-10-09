@@ -1,0 +1,19 @@
+{
+    "scriptFile": "__init__.py",
+    "bindings": [{
+            "authLevel": "function",
+            "type": "httpTrigger",
+            "direction": "in",
+            "route": "{campus}/{division}/ical/",
+            "name": "req",
+            "methods": [
+                "get"
+            ]
+        },
+        {
+            "type": "http",
+            "direction": "out",
+            "name": "$return"
+        }
+    ]
+}

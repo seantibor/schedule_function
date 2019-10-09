@@ -1,5 +1,6 @@
 import logging
 from __app__.SharedCode import bell_schedule as bell #pylint: disable=import-error
+from __app__.SharedCode import schedule_helper_functions as shf #pylint: disable=import-error
 import datetime as dt
 import json
 import requests
@@ -18,8 +19,12 @@ def main(req: func.HttpRequest, scheduleOutput: func.Out[func.Document]) -> func
     else:
         schedule = bell.BellSchedule.from_json(schedule)
 
-    
-    scheduleOutput.set(func.Document.from_json(schedule.to_json()))
+    document = shf.get_latest_document(schedule.campus, schedule.division, schedule.schedule_date)
+    if document:
+        document.update(schedule.as_dict())
+        shf.update_schedule_document(document)
+    else:
+        scheduleOutput.set(func.Document.from_json(schedule.to_json()))
         
     return func.HttpResponse(
         body=schedule.to_json(),
