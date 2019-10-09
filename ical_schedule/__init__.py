@@ -20,13 +20,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     )
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
-    names = {
-        "ftl": "Fort Lauderdale",
-        "boca": "Boca Raton",
-        "middleschool": "Middle School",
-        "upperschool": "Upper School",
-        "default_schedule": "Regular Schedule",
-    }
+
     start_date = dt.datetime.now(tz=DEFAULT_TZINFO)
     schedules = shf.get_schedules(campus, division, start_date, num_days=DEFAULT_NUM_DAYS)
     schedules = {date: bell.BellSchedule.from_json(schedule) for date, schedule in schedules.items()}
