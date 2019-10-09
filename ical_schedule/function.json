@@ -1,7 +1,7 @@
 {
     "scriptFile": "__init__.py",
     "bindings": [{
-            "authLevel": "function",
+            "authLevel": "anonymous",
             "type": "httpTrigger",
             "direction": "in",
             "route": "{campus}/{division}/ical/",
