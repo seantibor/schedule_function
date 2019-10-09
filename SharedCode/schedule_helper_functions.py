@@ -10,6 +10,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 import pathlib
 import urllib.parse as parse
 import os
+import icalendar
 
 connection_params = parse.parse_qs(os.environ['CosmosDBConnectionString'])
 
@@ -82,3 +83,23 @@ def get_schedules(campus: str, division: str, start_date: dt.datetime, end_date:
             c.schedule_date <= \"{end_date.strftime('%Y-%m-%d')}\" AND c.campus = \"{campus}\" AND \
             c.division = \"{division}\" AND c.ts <= GETCURRENTTIMESTAMP() ORDER BY c.ts DESC" 
     return {schedule['schedule_date']: schedule for schedule in get_schedule_documents(query)}
+
+def period_as_event(period, timezone) -> icalendar.Event:
+    event = icalendar.Event()
+    event.add('summary', period.name)
+    event.add('dtstart', period.start_time.astimezone(timezone))
+    event.add('dtend', period.end_time.astimezone(timezone))
+    event.add('dtstamp', dt.datetime.now(tz=tz.UTC))
+    event['uid'] = f'{period.name}/{period.start_time.isoformat()}/{period.end_time.isoformat()}'
+    return event
+
+def schedule_as_events(schedule: BellSchedule) -> list:
+    event = icalendar.Event()
+    timezone = tz.gettz(schedule.tzname)
+    event.add('summary', schedule.name)
+    event.add('dtstart', schedule.schedule_date.astimezone(timezone).date())
+    event.add('dtstamp', dt.datetime.now(tz=tz.UTC))
+    event['uid'] = f"{schedule.campus}/{schedule.division}/{schedule.name}/{schedule.schedule_date.isoformat()}"
+    events = [event]
+    events.extend([period_as_event(period, timezone) for period in schedule.periods.values()])
+    return events
