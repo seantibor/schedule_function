@@ -11,10 +11,18 @@ import pathlib
 import urllib.parse as parse
 import os
 import icalendar
+import pytz
 
 connection_params = parse.parse_qs(os.environ['CosmosDBConnectionString'])
 
 DEFAULT_TZNAME = "America/New_York"
+names = {
+        "ftl": "Fort Lauderdale",
+        "boca": "Boca Raton",
+        "middleschool": "Middle School",
+        "upperschool": "Upper School",
+        "default_schedule": "Regular Schedule",
+    }
 
 HOST = connection_params['AccountEndpoint'][0]
 MASTER_KEY = connection_params['AccountKey'][0]
@@ -95,7 +103,7 @@ def period_as_event(period, timezone) -> icalendar.Event:
 
 def schedule_as_events(schedule: BellSchedule) -> list:
     event = icalendar.Event()
-    timezone = tz.gettz(schedule.tzname)
+    timezone = tz.UTC
     event.add('summary', schedule.name)
     event.add('dtstart', schedule.schedule_date.astimezone(timezone).date())
     event.add('dtstamp', dt.datetime.now(tz=tz.UTC))

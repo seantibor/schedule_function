@@ -20,6 +20,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     )
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
+    
 
     start_date = dt.datetime.now(tz=DEFAULT_TZINFO)
     schedules = shf.get_schedules(campus, division, start_date, num_days=DEFAULT_NUM_DAYS)
@@ -28,9 +29,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     cal.add('prodid', f'PC Bell Schedule - https://pcbellschedule.azurewebsites.net/api/{campus}/{division}/schedule')
     cal.add('version', '2.0')
     cal.add('dtstamp', dt.datetime.now(tz=tz.UTC))
+    cal.add('x-wr-calname', f'Pine Crest {campus.upper()} {shf.names.get(division)} Bell Schedule')
     for date in (start_date + dt.timedelta(days=i) for i in range(DEFAULT_NUM_DAYS)):
         if date.weekday() < 5:
-            schedule = schedules.get(date, shf.get_default_schedule(campus, division, date))
+            schedule = schedules.get(date.strftime(DEFAULT_DATE_FORMAT), shf.get_default_schedule(campus, division, date))
             for event in shf.schedule_as_events(schedule):
                 cal.add_component(event)
     return func.HttpResponse(body=cal.to_ical(), mimetype="text/calendar")
