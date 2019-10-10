@@ -21,8 +21,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     campus = req.route_params.get("campus")
     division = req.route_params.get("division")
     
-
-    start_date = dt.datetime.now(tz=DEFAULT_TZINFO)
+    today = dt.datetime.today().replace(tzinfo=DEFAULT_TZINFO)
+    start_date = today + dt.timedelta(days=-today.weekday())
     schedules = shf.get_schedules(campus, division, start_date, num_days=DEFAULT_NUM_DAYS)
     schedules = {date: bell.BellSchedule.from_json(schedule) for date, schedule in schedules.items()}
     cal = icalendar.Calendar()
@@ -31,7 +31,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     cal.add('dtstamp', dt.datetime.now(tz=tz.UTC))
     cal.add('x-wr-calname', f'Pine Crest {campus.upper()} {shf.names.get(division)} Bell Schedule')
     for date in (start_date + dt.timedelta(days=i) for i in range(DEFAULT_NUM_DAYS)):
-        if date.weekday() < 5:
+        if date.weekday() < 5 or date.strftime(DEFAULT_DATE_FORMAT) in schedules:
             schedule = schedules.get(date.strftime(DEFAULT_DATE_FORMAT), shf.get_default_schedule(campus, division, date))
             for event in shf.schedule_as_events(schedule):
                 cal.add_component(event)
