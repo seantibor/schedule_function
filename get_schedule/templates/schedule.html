@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>{{ schedule.schedule_date.strftime('%B %d, %Y') }} {{ division }} Bell Schedule</title>
+        <title>{{ campus }} {{ division }} Bell Schedule</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="https://pcstoragestaticfiles.z13.web.core.windows.net/pcschedule/images/pc_schedule.png">
-        <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -14,6 +13,10 @@
         .btn-primary, .thead-dark>th {
             background-color: #064614 !important;
             border-color: #064614 !important;
+        }
+        .btn-blue {
+            background-color: #4588F3 !important;
+            border-color: #4588F3 !important;
         }
         a {
             color: #064614
@@ -51,6 +54,16 @@
                     <a href="{{ bookmark_url }}" class='link'>Bookmark this link or add it to your homescreen</a>
                 </div>
             </div>
+            
+            <div class='row'>
+                <div class='col text-center'>
+                    {% if gcal_url %}
+                    <a href="{{ gcal_url }}" class='btn btn-secondary btn-sm btn-blue'>View as Google Calendar</a>
+                    {% endif %}
+                    <a href="{{ ical_url }}" class="btn btn-secondary btn-sm btn-blue">Add to Apple Calendar</a>
+                </div>
+            </div>
+            
             <div class='row my-3'>
                 <div class='col text-center'>
                 <a href='{{ yesterday }}' class="btn btn-primary">Yesterday</a>
