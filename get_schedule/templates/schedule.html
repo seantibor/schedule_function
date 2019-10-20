@@ -43,26 +43,13 @@
         </style>
     </head>
     <body>
-        <div class='container'>
+        <div class='container py-3'>
             <div id="title" class='jumbotron'>
                 <h1 id="schedule_name" class='text-center'>{{schedule_name}}</h1>
                 <h2 class='text-center'>{{campus}} {{division}}</h2>
                 <h3 class='text-center'>{{ schedule.schedule_date.astimezone(schedule.tz).strftime('%A, %b %-d, %Y') }}</h3>
             </div>
-            <div class='row'>
-                <div class='col text-center'>
-                    <a href="{{ bookmark_url }}" class='link'>Bookmark this link or add it to your homescreen</a>
-                </div>
-            </div>
-            
-            <div class='row'>
-                <div class='col text-center'>
-                    {% if gcal_url %}
-                    <a href="{{ gcal_url }}" class='btn btn-secondary btn-sm btn-blue'>View as Google Calendar</a>
-                    {% endif %}
-                    <a href="{{ ical_url }}" class="btn btn-secondary btn-sm btn-blue">Add to Apple Calendar</a>
-                </div>
-            </div>
+
             
             <div class='row my-3'>
                 <div class='col text-center'>
@@ -103,6 +90,20 @@
                 {% else %}
                 <div class="jumbotron text-center no-classes"><h3>{{ schedule_name }}</h3></div>
                 {% endif %}
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col text-center'>
+                    <a href="{{ bookmark_url }}" class='link'>Bookmark this link or add it to your homescreen</a>
+                </div>
+            </div>
+            
+            <div class='row'>
+                <div class='col text-center'>
+                    {% if gcal_url %}
+                    <a href="{{ gcal_url }}" class='btn btn-secondary btn-sm btn-blue'>View as Google Calendar</a>
+                    {% endif %}
+                    <a href="{{ ical_url }}" class="btn btn-secondary btn-sm btn-blue">Add to Apple Calendar</a>
                 </div>
             </div>
         </div>

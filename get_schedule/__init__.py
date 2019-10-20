@@ -71,7 +71,7 @@ async def main(
         "ical_url": urljoin(req.url, f"/api/{campus}/{division}/ical/")
     }
     if campus == 'ftl' and division =='middleschool':
-        variables['gcal_url'] = 'https://calendar.google.com/calendar/embed?src=b2cssecjdpm9r0temvq5fpef6a0pr8i4%40import.calendar.google.com&ctz=America%2FNew_York'
+        variables['gcal_url'] = urljoin(req.url, f"/api/{campus}/{division}/ical/").replace('https','webcal').replace("http", "webcal")
 
     template_path = pathlib.Path(__file__).parent / "templates"
 
