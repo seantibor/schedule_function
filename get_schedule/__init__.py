@@ -67,12 +67,12 @@ async def main(
         "yesterday": yesterday_url,
         "tomorrow": tomorrow_url,
         "bookmark_url": bookmark_url,
-        "today_url": urljoin(
-            bookmark_url,
-            dt.datetime.now(tz=DEFAULT_TZINFO).date().strftime(DEFAULT_DATE_FORMAT),
-        ),
         "today": schedule_date.date() == dt.datetime.now(tz=DEFAULT_TZINFO).date(),
+        "ical_url": urljoin(req.url, f"/api/{campus}/{division}/ical/")
     }
+    if campus == 'ftl' and division =='middleschool':
+        variables['gcal_url'] = urljoin(req.url, f"/api/{campus}/{division}/ical/").replace('https','webcal').replace("http", "webcal")
+
     template_path = pathlib.Path(__file__).parent / "templates"
 
     try:

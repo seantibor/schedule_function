@@ -105,9 +105,10 @@ def schedule_as_events(schedule: BellSchedule) -> list:
     event = icalendar.Event()
     timezone = tz.UTC
     event.add('summary', schedule.name)
-    event.add('dtstart', schedule.schedule_date.astimezone(timezone).date())
+    event.add('dtstart', schedule.schedule_date.date())
+    event.add('dtend', schedule.schedule_date.date())
     event.add('dtstamp', dt.datetime.now(tz=tz.UTC))
     event['uid'] = f"{schedule.campus}/{schedule.division}/{schedule.name}/{schedule.schedule_date.isoformat()}"
-    events = [event]
-    events.extend([period_as_event(period, timezone) for period in schedule.periods.values()])
+    events = [period_as_event(period, timezone) for period in schedule.periods.values()]
+    events.append(event)
     return events

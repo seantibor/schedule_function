@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>{{ schedule.schedule_date.strftime('%B %d, %Y') }} {{ division }} Bell Schedule</title>
+        <title>{{ campus }} {{ division }} Bell Schedule</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="apple-touch-icon" href="https://pcstoragestaticfiles.z13.web.core.windows.net/pcschedule/images/pc_schedule.png">
-        <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
@@ -14,6 +13,10 @@
         .btn-primary, .thead-dark>th {
             background-color: #064614 !important;
             border-color: #064614 !important;
+        }
+        .btn-blue {
+            background-color: #4588F3 !important;
+            border-color: #4588F3 !important;
         }
         a {
             color: #064614
@@ -40,27 +43,24 @@
         </style>
     </head>
     <body>
-        <div class='container'>
+        <div class='container py-3'>
             <div id="title" class='jumbotron'>
                 <h1 id="schedule_name" class='text-center'>{{schedule_name}}</h1>
                 <h2 class='text-center'>{{campus}} {{division}}</h2>
                 <h3 class='text-center'>{{ schedule.schedule_date.astimezone(schedule.tz).strftime('%A, %b %-d, %Y') }}</h3>
             </div>
+
+            
             <div class='row'>
-                <div class='col text-center'>
-                    <a href="{{ bookmark_url }}" class='link'>Bookmark this link or add it to your homescreen</a>
-                </div>
-            </div>
-            <div class='row my-3'>
-                <div class='col text-center'>
+                <div class='col text-center my-3'>
                 <a href='{{ yesterday }}' class="btn btn-primary">Yesterday</a>
                 </div>
                 {% if not today %}
-                <div class='col text-center'>
+                <div class='col text-center my-3'>
                 <a href='{{ bookmark_url }}' class="btn btn-primary">Jump to today</a>
                 </div>
                 {% endif %}
-                <div class='col text-center'>
+                <div class='col text-center my-3'>
                 <a href='{{ tomorrow }}' class="btn btn-primary">Tomorrow</a>
                 </div>
             </div>
@@ -70,19 +70,19 @@
                 {% if schedule.periods|length() > 0 %}
                 <table class='table table-striped'>
                     <thead>
-                    <tr class='period-header thead-dark'>
-                        <th>Period</th>
-                        <th>Start</th>
-                        <th>End</th>
-                        <th class='text-right'>Duration (minutes)</th>
+                    <tr class='period-header thead-dark text-center'>
+                        <th class='w-40'>Period</th>
+                        <th class='w-20'>Start</th>
+                        <th class='w-20'>End</th>
+                        <th class='text-right w-20'>Duration (minutes)</th>
                     </tr>
                     </thead>
                     <tbody>{% for period in schedule.periods.values() %}
-                    <tr class='period-row'>
-                            <td class='period-name'>{{ period.name }}</td>
-                            <td class='period-start time'>{{ period.start_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
-                            <td class='period-end time'>{{ period.end_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
-                            <td class='period-duration duration text-right'>{{ period.duration_min|round|int }} min</td>
+                    <tr class='period-row text-center'>
+                            <td class='period-name w-40 text-left'>{{ period.name }}</td>
+                            <td class='period-start time w-20'>{{ period.start_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
+                            <td class='period-end time w-20'>{{ period.end_time.astimezone(schedule.tz).strftime('%-I:%M %p ') }}</td>
+                            <td class='period-duration duration text-right w-20'>{{ period.duration_min|round|int }} min</td>
                         {% endfor %}
                     </tr>
                     </tbody>
@@ -90,6 +90,20 @@
                 {% else %}
                 <div class="jumbotron text-center no-classes"><h3>{{ schedule_name }}</h3></div>
                 {% endif %}
+                </div>
+            </div>
+            <div class='row'>
+                <div class='col text-center'>
+                    <a href="{{ bookmark_url }}" class='link'>Bookmark this link or add it to your homescreen</a>
+                </div>
+            </div>
+            
+            <div class='row'>
+                <div class='col text-center'>
+                    {% if gcal_url %}
+                    <a href="{{ gcal_url }}" class='btn btn-secondary btn-sm btn-blue my-3'>View as Google Calendar</a>
+                    {% endif %}
+                    <a href="{{ ical_url }}" class="btn btn-secondary btn-sm btn-blue my-3">Add to Apple Calendar</a>
                 </div>
             </div>
         </div>
