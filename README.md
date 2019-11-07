@@ -4,8 +4,9 @@ This code runs on Azure Functions and serves the daily bell schedule for the Pin
 
 ## TODO
 
-- Add other campuses with route parameters
+- _Add other campuses with route parameters_
 - Add client function library
-- Add parsing of Google Docs schedules
+- _Add parsing of Google Docs schedules_
 - User Interface Connecting with Python
+- Speed up initial launch of container
 
