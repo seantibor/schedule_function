@@ -2,6 +2,6 @@ azure-functions==1.0.0b5
 requests==2.22.0
 python-dateutil==2.8.0
 iso8601==0.1.12
-jinja2==2.10.1
+jinja2==2.11.3
 azure-cosmos==3.1.1
 icalendar==4.0.3
